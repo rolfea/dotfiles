@@ -1,20 +1,60 @@
+set nocompatible
+filetype off
+
+" ===
+" Vundle Required
+" ===
+
+" set the runtime path to include Vundle and initialize
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+" Let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
+
+" CtrlP Fuzzy File Finder
+Plugin 'ctrlpvim/ctrlp.vim'
+
+" Surround.vim
+" gives vim new verbs for surroundings: [, {, (, etc
+Plugin 'tpope/vim-surround'
+
+" Repeat.vim
+" Gives plugins access to repeat behavior
+Plugin 'tpope/vim-repeat'
+
+" Commentary.vim
+" teaches vim how to do comments: gc, etc.
+Plugin 'tpope/vim-commentary'
+
+" All of your Plugins must be added before the following line
+call vundle#end()         " required
+filetype plugin indent on " required
+ 
 " Set Leader Key
 let mapleader = "\<Space>"
 
+
+" ===
 " .vimrc editing commands
+" ===
 nmap <leader>vr :sp $MYVIMRC<cr>
 nmap <leader>so :source $MYVIMRC<cr>
 
-set number
-
+" ===
 " Text Display, Indentation, Etc
+" ===
+set number
 set smartindent
 set tabstop=2
 set expandtab
 set shiftwidth=2
-
 set backspace=indent,eol,start
 set nocompatible
+set ruler                      " show cursor position all the time
+set nobackup
+set nowritebackup
+set noswapfile
 
 " Navigation Change
 nmap 0 ^
@@ -24,3 +64,9 @@ nmap j gj
 " Get Out of Insert Mode
 imap jk <esc>
 imap kj <esc>
+
+
+" Make CtrlP use ag for listing the files. 
+" " Turns off caching and avoids useless files.
+let g:ctrlp_user_command = 'ag %s -l --hidden --nocolor -g ""'
+let g:ctrlp_use_caching = 0
