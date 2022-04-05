@@ -27,6 +27,10 @@ Plugin 'tpope/vim-repeat'
 " teaches vim how to do comments: gc, etc.
 Plugin 'tpope/vim-commentary'
 
+"Vim - Tmux Navigator
+" lets you use the same motions to move between tmux and vim windows
+Plugin 'christoomey/vim-tmux-navigator'
+
 " All of your Plugins must be added before the following line
 call vundle#end()         " required
 filetype plugin indent on " required
