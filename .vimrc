@@ -1,7 +1,6 @@
 set nocompatible
 filetype off
 
-" ===
 " Vundle Required
 " ===
 
@@ -28,7 +27,22 @@ Plugin 'tpope/vim-repeat'
 Plugin 'tpope/vim-commentary'
 
 "Chris Toomey's Tmux-Vim Navigation helper
-Plugin 'christoomey/vim-tmux-navigator
+Plugin 'christoomey/vim-tmux-navigator'
+
+"ALE Async Linting Engine
+Plugin 'dense-analysis/ale'
+
+"Prettier VIM Plugin
+Plugin 'prettier/vim-prettier'
+
+"Vim JavaScript (Syntax Highlighting)
+Plugin 'pangloss/vim-javascript'
+
+"Typscript Vim 
+Plugin 'leafgarland/typescript-vim'
+
+"Vim JSX Pretty
+Plugin 'MaxMEllon/vim-jsx-pretty'
 
 " All of your Plugins must be added before the following line
 call vundle#end()         " required
@@ -58,6 +72,10 @@ set ruler                      " show cursor position all the time
 set nobackup
 set nowritebackup
 set noswapfile
+" Put the current file into the status line
+set laststatus=2
+set statusline=%F
+colorscheme evening
 
 " Navigation Change
 nmap 0 ^
@@ -73,3 +91,21 @@ imap kj <esc>
 " " Turns off caching and avoids useless files.
 let g:ctrlp_user_command = 'ag %s -l --hidden --nocolor -g ""'
 let g:ctrlp_use_caching = 0
+
+set grepprg=ag\ --nogroup\ --nocolor
+
+" Use the new regex engine
+syntax on
+set re=0
+
+" ALE Settings
+let g:ale_fixers = {
+      \ 'javascript': ['prettier'],
+      \ 'typescript': ['prettier'],
+      \ }
+let g:ale_fix_on_save = 1
+map <buffer> <gd> :ALEGoToDefinition<CR>
+nnoremap <silent> gr :ALEFindReferences<CR>
+nnoremap <leader>. :ALECodeAction<CR>
+vnoremap <leader>. :ALECodeAction<CR>
+

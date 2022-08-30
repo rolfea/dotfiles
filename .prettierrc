@@ -1,0 +1,5 @@
+{
+  "autoformatRequirePragma": false,
+  "printWidth": 100,
+  "editor.formatOnSave": true
+}
