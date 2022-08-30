@@ -26,7 +26,9 @@ Plugin 'tpope/vim-repeat'
 " teaches vim how to do comments: gc, etc.
 Plugin 'tpope/vim-commentary'
 
+<<<<<<< HEAD
 "Chris Toomey's Tmux-Vim Navigation helper
+" lets you use the same motions to move between tmux and vim windows
 Plugin 'christoomey/vim-tmux-navigator'
 
 "ALE Async Linting Engine
