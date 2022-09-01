@@ -26,7 +26,6 @@ Plugin 'tpope/vim-repeat'
 " teaches vim how to do comments: gc, etc.
 Plugin 'tpope/vim-commentary'
 
-<<<<<<< HEAD
 "Chris Toomey's Tmux-Vim Navigation helper
 " lets you use the same motions to move between tmux and vim windows
 Plugin 'christoomey/vim-tmux-navigator'
@@ -78,6 +77,7 @@ set noswapfile
 set laststatus=2
 set statusline=%F
 colorscheme evening
+set relativenumber
 
 " Navigation Change
 nmap 0 ^
@@ -106,7 +106,9 @@ let g:ale_fixers = {
       \ 'typescript': ['prettier'],
       \ }
 let g:ale_fix_on_save = 1
-map <buffer> <gd> :ALEGoToDefinition<CR>
+let g:ale_completion_enabled = 1
+" map <buffer> gd :ALEGoToDefinition<CR>
+nnoremap <silent> gd :ALEGoToDefinition<CR>
 nnoremap <silent> gr :ALEFindReferences<CR>
 nnoremap <leader>. :ALECodeAction<CR>
 vnoremap <leader>. :ALECodeAction<CR>
