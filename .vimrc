@@ -88,13 +88,28 @@ nmap j gj
 imap jk <esc>
 imap kj <esc>
 
+" Replacing with Silver Searcher if available
+if executable('ag')
+  set grepprg=ag\ --nogroup\ --nocolor
+  " Make CtrlP use ag for listing the files. 
+  let g:ctrlp_user_command = 'ag %s -l --hidden --nocolor -g ""'
+  " Turns off caching and avoids useless files.
+  let g:ctrlp_use_caching = 0
+endif
 
-" Make CtrlP use ag for listing the files. 
-" " Turns off caching and avoids useless files.
-let g:ctrlp_user_command = 'ag %s -l --hidden --nocolor -g ""'
-let g:ctrlp_use_caching = 0
+" bind K to grep word under cursor
+nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+" bind leader + g to open :grep in the command line
+:nmap <leader>g :grep<space> 
 
-set grepprg=ag\ --nogroup\ --nocolor
+" auto open quickfix after grep and populate with grep results
+" TODO can I get this to go straight to the quick fix w/o the inbetween 
+" grep window?
+augroup quickfix
+  autocmd!
+  autocmd QuickFixCmdPost [^l]* cwindow
+  autocmd QuickFixCmdPost l* lwindow
+augroup END
 
 " Use the new regex engine
 syntax on
