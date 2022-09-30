@@ -1,52 +1,52 @@
 set nocompatible
 filetype off
+set updatetime=300
 
-" Vundle Required
+" Prevents the text from shifting when diagnostics appear/resolve
+set signcolumn=yes
+
+" Vim Plug Required
 " ===
 
-" set the runtime path to include Vundle and initialize
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+" set the runtime path to include Vim Plug and initialize
+call plug#begin('~/.vim/plugged')
 
-" Let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
+" Vim Airline - Nicer Status Bar
+Plug 'vim-airline/vim-airline'
+Plug 'vim-airline/vim-airline-themes'
 
 " CtrlP Fuzzy File Finder
-Plugin 'ctrlpvim/ctrlp.vim'
+Plug 'ctrlpvim/ctrlp.vim'
 
 " Surround.vim
 " gives vim new verbs for surroundings: [, {, (, etc
-Plugin 'tpope/vim-surround'
+Plug 'tpope/vim-surround'
 
 " Repeat.vim
 " Gives plugins access to repeat behavior
-Plugin 'tpope/vim-repeat'
+Plug 'tpope/vim-repeat'
 
 " Commentary.vim
 " teaches vim how to do comments: gc, etc.
-Plugin 'tpope/vim-commentary'
+Plug 'tpope/vim-commentary'
 
 "Chris Toomey's Tmux-Vim Navigation helper
 " lets you use the same motions to move between tmux and vim windows
-Plugin 'christoomey/vim-tmux-navigator'
+Plug 'christoomey/vim-tmux-navigator'
 
-"ALE Async Linting Engine
-Plugin 'dense-analysis/ale'
+" coc.nvim
+ Plug 'neoclide/coc.nvim', {'branch': 'release'}
+ Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
+ Plug 'neoclide/coc-html', {'do': 'yarn install --frozen-lockfile'}
+ Plug 'neoclide/coc-css', {'do': 'yarn install --frozen-lockfile'}
+ Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
+ Plug 'neoclide/coc-jest', {'do': 'yarn install --frozen-lockfile'}
+ Plug 'neoclide/coc-eslint', {'do': 'yarn install --frozen-lockfile'}
+ Plug 'neoclide/coc-prettier', {'do': 'yarn install --frozen-lockfile'}
+ Plug 'neoclide/coc-yaml', {'do': 'yarn install --frozen-lockfile'}
 
-"Prettier VIM Plugin
-Plugin 'prettier/vim-prettier'
-
-"Vim JavaScript (Syntax Highlighting)
-Plugin 'pangloss/vim-javascript'
-
-"Typscript Vim 
-Plugin 'leafgarland/typescript-vim'
-
-"Vim JSX Pretty
-Plugin 'MaxMEllon/vim-jsx-pretty'
-
-" All of your Plugins must be added before the following line
-call vundle#end()         " required
+" All of your Plugs must be added before the following line
+call plug#end()         " required
 filetype plugin indent on " required
  
 " Set Leader Key
@@ -76,8 +76,11 @@ set noswapfile
 " Put the current file into the status line
 set laststatus=2
 set statusline=%F
-colorscheme evening
+set termguicolors
 set relativenumber
+color evening
+let g:airline_theme='tomorrow'
+let g:airline#extensions#coc#enabled = 1
 
 " Navigation Change
 nmap 0 ^
@@ -115,16 +118,45 @@ augroup END
 syntax on
 set re=0
 
-" ALE Settings
-let g:ale_fixers = {
-      \ 'javascript': ['prettier'],
-      \ 'typescript': ['prettier'],
-      \ }
-let g:ale_fix_on_save = 1
-let g:ale_completion_enabled = 1
-" map <buffer> gd :ALEGoToDefinition<CR>
-nnoremap <silent> gd :ALEGoToDefinition<CR>
-nnoremap <silent> gr :ALEFindReferences<CR>
-nnoremap <leader>. :ALECodeAction<CR>
-vnoremap <leader>. :ALECodeAction<CR>
+" Use tab to trigger completion with characters ahead and navigate
+inoremap <silent><expr> <TAB>
+      \ coc#pum#visible() ? coc#pum#next(1) :
+      \ CheckBackspace() ? "\<Tab>" :
+      \ coc#refresh()
+inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
 
+function! CheckBackspace() abort
+  let col = col('.') - 1
+  return !col || getline('.')[col - 1] =~# '\s'
+endfunction 
+
+" Use <c-space> to trigger completition
+if has('nvim')
+  inoremap <silent><expr> <c-space> coc#refresh()
+else
+  inoremap <silent<expr> <c-@> coc#refresh()
+endif
+
+" Use `[g` and `]g` to navigate diagnostics
+" Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+nmap <silent> [g (coc-diagnostic-prev)
+nmap <silent> ]g (coc-diagnostic-next)
+
+" GoTo code navigation.
+nmap <silent> gd <Plug>(coc-definition)
+nmap <silent> gy <Plug>(coc-type-definition)
+nmap <silent> gi <Plug>(coc-implementation)
+nmap <silent> gr <Plug>(coc-references)
+
+" Use <leader>K to show documentation in preview window.
+nnoremap <leader>K :call ShowDocumentation()<CR>
+
+function! ShowDocumentation()
+  if CocAction('hasProvider', 'hover')
+    call CocActionAsync('doHover')
+  else
+    call feedkeys('K', 'in')
+  endif
+endfunction
+
+nmap <leader>. <Plug>(coc-codeaction)
