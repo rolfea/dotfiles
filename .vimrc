@@ -48,6 +48,8 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
 
+Plug 'dracula/vim', { 'as': 'dracula' }
+
 " All of your Plugs must be added before the following line
 call plug#end()         " required
 filetype plugin indent on " required
@@ -76,14 +78,13 @@ set ruler                      " show cursor position all the time
 set nobackup
 set nowritebackup
 set noswapfile
-" Put the current file into the status line
-set laststatus=2
-set statusline=%F
-set termguicolors
 set relativenumber
-color evening
+set cursorline
 let g:airline_theme='tomorrow'
 let g:airline#extensions#coc#enabled = 1
+
+" Dracula Display Stuff
+color dracula
 
 " Navigation Change
 nmap 0 ^
@@ -106,7 +107,7 @@ endif
 " bind K to grep word under cursor
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 " bind leader + g to open :grep in the command line
-:nmap <leader>g :grep<space> 
+:nmap <leader>g :grep -i<space> 
 
 " auto open quickfix after grep and populate with grep results
 " TODO can I get this to go straight to the quick fix w/o the inbetween 

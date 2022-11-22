@@ -1,6 +1,17 @@
 {
-   "eslint.enable": true,
-   "eslint.autoFixOnSave": true,
-   "eslint.filetypes": ["javascript", "javascriptreact", "typescript","typescriptreact","html","vue","markdown"],
-   "coc.preferences.formatOnSaveFiletypes": ["css", "markdown", "javascript", "javascriptreact", "typescript", "typescriptreact"]
+  "eslint.enable": true,
+  "eslint.autoFixOnSave": true,
+  "eslint.filetypes": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact",
+    "html",
+    "vue",
+    "markdown"
+  ],
+  "coc.preferences.formatOnSaveFiletypes": ["*"],
+  "yaml.enable": true,
+  "yaml.validate": true,
+  "diagnostic.checkCurrentLine": true
 }
