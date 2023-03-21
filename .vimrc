@@ -30,6 +30,10 @@ Plug 'tpope/vim-repeat'
 " teaches vim how to do comments: gc, etc.
 Plug 'tpope/vim-commentary'
 
+" Vim Abolish
+" I use this to coerce between cases, so snake case to camel case, etc.
+Plug 'tpope/vim-abolish'
+
 "Chris Toomey's Tmux-Vim Navigation helper
 " lets you use the same motions to move between tmux and vim windows
 Plug 'christoomey/vim-tmux-navigator'
@@ -49,6 +53,13 @@ Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
 
 Plug 'dracula/vim', { 'as': 'dracula' }
+
+" Adds color formatting to csv files for easier reading + some SQL-like
+" commands
+Plug 'mechatroner/rainbow_csv'
+
+" Vim Test (run tests from in editor)
+Plug 'vim-test/vim-test'
 
 " All of your Plugs must be added before the following line
 call plug#end()         " required
@@ -83,6 +94,8 @@ set cursorline
 let g:airline_theme='tomorrow'
 let g:airline#extensions#coc#enabled = 1
 
+" Set Code Folding
+setlocal foldmethod=syntax
 " Dracula Display Stuff
 color dracula
 
@@ -148,6 +161,8 @@ nmap <silent> ]g (coc-diagnostic-next)
 
 " GoTo code navigation.
 nmap <silent> gd <Plug>(coc-definition)
+" Go to def. in a vertical split
+nmap <silent> GD :vsplit<CR><Plug>(coc-definition)
 nmap <silent> gy <Plug>(coc-type-definition)
 nmap <silent> gi <Plug>(coc-implementation)
 nmap <silent> gr <Plug>(coc-references)
@@ -187,3 +202,11 @@ hi tsxTypeBraces guifg=#999999
 " dark-grey
 hi tsxTypes guifg=#666666
 
+" Vim Test Settings and Mappings
+let test#strategy = 'basic'
+let g:test#javascript#runner = 'jest'
+nmap <silent> <leader>t :TestNearest<CR>
+nmap <silent> <leader>T :TestFile<CR>
+nmap <silent> <leader>a :TestSuite<CR>
+nmap <silent> <leader>l :TestLast<CR>
+nmap <silent> <leader>G :TestVisit<CR>
