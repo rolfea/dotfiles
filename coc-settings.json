@@ -14,4 +14,5 @@
   "yaml.enable": true,
   "yaml.validate": true,
   "diagnostic.checkCurrentLine": true
+  "prettier.singleQuote": true
 }

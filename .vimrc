@@ -7,6 +7,12 @@ set signcolumn=yes
 
 " Vim Plug Required
 " ===
+" This will automatically install Vim Plug if it is missing
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+    silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs  https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+      autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
 
 " set the runtime path to include Vim Plug and initialize
 call plug#begin('~/.vim/plugged')
@@ -95,7 +101,9 @@ let g:airline_theme='tomorrow'
 let g:airline#extensions#coc#enabled = 1
 
 " Set Code Folding
-setlocal foldmethod=syntax
+set foldmethod=syntax
+" nofoldenable stops the folding from happening when you load a file
+set nofoldenable
 " Dracula Display Stuff
 color dracula
 
@@ -202,6 +210,7 @@ hi tsxTypeBraces guifg=#999999
 " dark-grey
 hi tsxTypes guifg=#666666
 
+
 " Vim Test Settings and Mappings
 let test#strategy = 'basic'
 let g:test#javascript#runner = 'jest'
@@ -210,3 +219,9 @@ nmap <silent> <leader>T :TestFile<CR>
 nmap <silent> <leader>a :TestSuite<CR>
 nmap <silent> <leader>l :TestLast<CR>
 nmap <silent> <leader>G :TestVisit<CR>
+
+" Spell-check Markdown files and git commit messages
+autocmd BufRead,BufNewFile *.md setlocal spell
+autocmd BufRead,BufNewFile *.mdx setlocal spell
+autocmd Filetype gitcommit setlocal spell
+
