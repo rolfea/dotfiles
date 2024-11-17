@@ -10,9 +10,16 @@
     "vue",
     "markdown"
   ],
-  "coc.preferences.formatOnSaveFiletypes": ["*"],
+  "html.filetypes": [
+    "html"
+  ],
+  "html.completion.attributeDefaultValue": "singlequotes",
+  "html.format.indentInnerHtml": true,
+  "coc.preferences.formatOnSaveFiletypes": [
+    "*"
+  ],
   "yaml.enable": true,
   "yaml.validate": true,
-  "diagnostic.checkCurrentLine": true
+  "diagnostic.checkCurrentLine": true,
   "prettier.singleQuote": true
 }
