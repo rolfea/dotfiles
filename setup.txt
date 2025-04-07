@@ -1,0 +1,6 @@
+Basic setup steps on a new system.
+
+1. Create sym links for config files.
+  a. For vim, we want `~/.vimrc` to link to ~/dotfiles/.vimrc, so `ln -s ~/dotfiles/.vimrc ~/.vimrc`
+2. Similarly, for tmux: `ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf`
+
