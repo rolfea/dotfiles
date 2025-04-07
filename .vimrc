@@ -52,7 +52,7 @@ Plug 'christoomey/vim-tmux-navigator'
 Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
 
-Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'sainnhe/everforest', { 'as': 'everforest' }
 
 " Adds color formatting to csv files for easier reading + some SQL-like
 " commands
@@ -62,6 +62,8 @@ Plug 'mechatroner/rainbow_csv'
 Plug 'vim-test/vim-test'
 
 " All of your Plugs must be added before the following line
+
+
 call plug#end()         " required
 filetype plugin indent on " required
  
@@ -91,13 +93,34 @@ set nowritebackup
 set noswapfile
 set relativenumber
 set cursorline
-let g:airline_theme='tomorrow'
+let g:airline_theme='everforest'
 let g:airline#extensions#coc#enabled = 1
 
 " Set Code Folding
 setlocal foldmethod=syntax
-" Dracula Display Stuff
-color dracula
+" set foldcolumn=1
+" let javascript_fold=1
+set foldlevelstart=99
+
+
+" Theme Display Stuff
+if has ('termguicolors')
+  set termguicolors
+endif
+
+set background=dark
+
+" Set contrast.
+" This configuration option should be placed before `colorscheme everforest`.
+" Available values: 'hard', 'medium'(default), 'soft'
+let g:everforest_background = 'soft'
+let g:everforest_transparent_background =0 
+
+" Somehow better performance
+let g:everforest_better_performance = 1
+
+colorscheme everforest
+
 
 " Navigation Change
 nmap 0 ^
@@ -137,7 +160,7 @@ set re=0
 
 " Use tab to trigger completion with characters ahead and navigate
 inoremap <silent><expr> <TAB>
-      \ coc#pum#visible() ? coc#pum#next(1) :
+     \ coc#pum#visible() ? coc#pum#next(1) :
       \ CheckBackspace() ? "\<Tab>" :
       \ coc#refresh()
 inoremap <expr><S-TAB> coc#pum#visible() ? coc#pum#prev(1) : "\<C-h>"
@@ -204,7 +227,7 @@ hi tsxTypes guifg=#666666
 
 " Vim Test Settings and Mappings
 let test#strategy = 'basic'
-let g:test#javascript#runner = 'jest'
+let g:test#javascript#runner = 'vitest'
 nmap <silent> <leader>t :TestNearest<CR>
 nmap <silent> <leader>T :TestFile<CR>
 nmap <silent> <leader>a :TestSuite<CR>

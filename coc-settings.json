@@ -1,7 +1,7 @@
 {
   "eslint.enable": true,
   "eslint.autoFixOnSave": true,
-  "eslint.filetypes": [
+  "eslint.probe": [
     "javascript",
     "javascriptreact",
     "typescript",
@@ -10,7 +10,15 @@
     "vue",
     "markdown"
   ],
-  "coc.preferences.formatOnSaveFiletypes": ["*"],
+  "eslint.workingDirectories": [
+    "apps/api",
+    "apps/dashboard",
+    "apps/marketing",
+    "apps/automations",
+    "package/scripts",
+    "packages/common"
+  ],
+  "coc.preferences.formatOnSave": true,
   "yaml.enable": true,
   "yaml.validate": true,
   "diagnostic.checkCurrentLine": true

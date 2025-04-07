@@ -1,0 +1,11 @@
+# sym link a dir to dotfiles from $HOME/.config/alacritty
+[general] 
+# These themes are avaiable from here: https://github.com/alacritty/alacritty-theme
+import = [
+  "~/.config/alacritty/themes/themes/everforest_dark.toml"
+]
+
+[window]
+opacity = 0.5
+blur = true
+
