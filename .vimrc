@@ -199,6 +199,7 @@ nmap <silent> gr <Plug>(coc-references)
 " Use <leader>K to show documentation in preview window.
 nnoremap <leader>K :call ShowDocumentation()<CR>
 
+
 function! ShowDocumentation()
   if CocAction('hasProvider', 'hover')
     call CocActionAsync('doHover')
@@ -208,6 +209,12 @@ function! ShowDocumentation()
 endfunction
 
 nmap <leader>. <Plug>(coc-codeaction)
+
+" Insert Logger line
+nnoremap <leader>C :call InsertConsoleLog()<CR>
+function! InsertConsoleLog()
+  call append(line('.'), "logger.info(`Debug Log - ${}`)")
+endfunction
 
 " set filetypes as typescriptreact
 autocmd BufNewFile,BufRead *.tsx,*.jsx set filetype=typescriptreact
