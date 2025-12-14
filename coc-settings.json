@@ -26,5 +26,8 @@
   "yaml.enable": true,
   "yaml.validate": true,
   "diagnostic.checkCurrentLine": true,
-  "prettier.singleQuote": true
+  "prettier.singleQuote": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  }
 }
