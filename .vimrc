@@ -40,20 +40,25 @@ Plug 'tpope/vim-commentary'
 " I use this to coerce between cases, so snake case to camel case, etc.
 Plug 'tpope/vim-abolish'
 
+" Vim Fugitive
+" Allows you to run git commands from within Vim
+Plug 'tpope/vim-fugitive'
+
 "Chris Toomey's Tmux-Vim Navigation helper
 " lets you use the same motions to move between tmux and vim windows
 Plug 'christoomey/vim-tmux-navigator'
 
 " coc.nvim
- Plug 'neoclide/coc.nvim', {'branch': 'release'}
- Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
- Plug 'neoclide/coc-html', {'do': 'yarn install --frozen-lockfile'}
- Plug 'neoclide/coc-css', {'do': 'yarn install --frozen-lockfile'}
- Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
- Plug 'neoclide/coc-jest', {'do': 'yarn install --frozen-lockfile'}
- Plug 'neoclide/coc-eslint', {'do': 'yarn install --frozen-lockfile'}
- Plug 'neoclide/coc-prettier', {'do': 'yarn install --frozen-lockfile'}
- Plug 'neoclide/coc-yaml', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc.nvim', {'branch': 'release'}
+Plug 'neoclide/coc-tsserver', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-html', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-css', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-json', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-jest', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-eslint', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-prettier', {'do': 'yarn install --frozen-lockfile'}
+Plug 'neoclide/coc-yaml', {'do': 'yarn install --frozen-lockfile'}
+Plug 'josa42/coc-go', {'do': 'yarn install --frozen-lockfile'}
 
 Plug 'leafgarland/typescript-vim'
 Plug 'peitalin/vim-jsx-typescript'
@@ -66,6 +71,9 @@ Plug 'mechatroner/rainbow_csv'
 
 " Vim Test (run tests from in editor)
 Plug 'vim-test/vim-test'
+
+" Markdown Preview
+Plug 'iamcco/markdown-preview.nvim', { 'do': 'cd app && npx --yes yarn install' }
 
 " All of your Plugs must be added before the following line
 
@@ -240,8 +248,19 @@ hi tsxTypes guifg=#666666
 
 
 " Vim Test Settings and Mappings
-let test#strategy = 'basic'
+
+" Vitest with Doppler
+function! VitestDopplerTestStrategy(cmd)
+  execute '!' . 'doppler run -- ' . a:cmd 
+endfunction
+
+let g:test#custom_strategies = {'with_doppler': function('VitestDopplerTestStrategy')}
+
+let g:test#strategy = 'with_doppler'
+
 let g:test#javascript#runner = 'vitest'
+
+
 nmap <silent> <leader>t :TestNearest<CR>
 nmap <silent> <leader>T :TestFile<CR>
 nmap <silent> <leader>a :TestSuite<CR>
@@ -253,3 +272,13 @@ autocmd BufRead,BufNewFile *.md setlocal spell
 autocmd BufRead,BufNewFile *.mdx setlocal spell
 autocmd Filetype gitcommit setlocal spell
 
+" Markdown Preview Settings
+" https://github.com/iamcco/markdown-preview.nvim
+" set to 1, nvim will open the preview window after entering the Markdown buffer
+" default: 0
+let g:mkdp_auto_start = 1
+
+" set to 1, the nvim will auto close current preview window when changing
+" from Markdown buffer to another buffer
+" default: 1
+let g:mkdp_auto_close = 1
