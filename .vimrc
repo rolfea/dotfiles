@@ -213,7 +213,7 @@ nmap <leader>. <Plug>(coc-codeaction)
 " Insert Logger line
 nnoremap <leader>C :call InsertConsoleLog()<CR>
 function! InsertConsoleLog()
-  call append(line('.'), "logger.info(`Debug Log - ${}`)")
+  call append(line('.'), "console.info(`Debug Log - ${}`)")
 endfunction
 
 " set filetypes as typescriptreact

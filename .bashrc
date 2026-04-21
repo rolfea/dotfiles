@@ -122,3 +122,6 @@ eval "$(pyenv init - bash)"
 
 # Created by `pipx` on 2025-08-19 03:01:01
 export PATH="$PATH:/home/eunoia/.local/bin"
+
+# opencode
+export PATH=/home/eunoia/.opencode/bin:$PATH
