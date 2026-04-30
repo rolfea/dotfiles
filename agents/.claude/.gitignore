@@ -1,5 +1,6 @@
 history.jsonl
 stats-cache.json
+mcp-needs-auth-cache.json
 cache/
 sessions/
 projects/

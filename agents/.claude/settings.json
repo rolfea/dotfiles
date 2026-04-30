@@ -1,5 +1,15 @@
 {
   "enabledPlugins": {
-    "gopls-lsp@claude-plugins-official": true
-  }
+    "gopls-lsp@claude-plugins-official": true,
+    "lightpanda@lightpanda": true
+  },
+  "extraKnownMarketplaces": {
+    "lightpanda": {
+      "source": {
+        "source": "github",
+        "repo": "lightpanda-io/agent-skill"
+      }
+    }
+  },
+  "effortLevel": "xhigh"
 }

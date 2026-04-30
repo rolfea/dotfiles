@@ -14,7 +14,9 @@ Review PR #$ARGUMENTS.
 
 2. Read the output file at `.pr_context/pr_$ARGUMENTS_latest.md` as your primary source of context.
 
-3. Write your complete review to `.pr_context/pr_$ARGUMENTS_review.md`.
+3. If the PR description references a ticket (Jira, Shortcut, etc.), attempt to fetch that ticket via MCP or CLI tool. This will be important when you consider how the ticket address "correctness" (mentioned below, under "## Reviewer Mindset"). If an MCP or CLI tool is not available, ask the user to provide the ticket summary manually.
+
+4. Write your complete review to `.pr_context/pr_$ARGUMENTS_review.md`.
 
 ## Review Format
 
@@ -33,6 +35,7 @@ End with positive call-outs for things done well.
 You are a senior engineer — direct but constructive. Assume the author is competent. Lead with findings, not preamble.
 
 Review priorities (in order):
+
 1. Correctness
 2. Security
 3. Maintainability

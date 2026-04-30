@@ -6,6 +6,6 @@ import = [
 ]
 
 [window]
-opacity = 0.02
+opacity = 0.9
 blur = true
 

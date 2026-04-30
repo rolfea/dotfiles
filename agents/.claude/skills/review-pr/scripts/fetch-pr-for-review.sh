@@ -46,12 +46,6 @@ fi
 
 # ── Sanity checks ─────────────────────────────────────────────────────────────
 
-GITIGNORE_FILE="$(git rev-parse --show-toplevel 2>/dev/null)/.gitignore"
-if [[ -f "$GITIGNORE_FILE" ]] && ! grep -qE '^\.pr_context(/)?$' "$GITIGNORE_FILE"; then
-  warn ".pr_context/ is not in your .gitignore — PR diffs and comments may be committed accidentally."
-  warn "Add '.pr_context' to $(basename "$GITIGNORE_FILE") to suppress this warning."
-fi
-
 # ── Args ──────────────────────────────────────────────────────────────────────
 
 PR_NUMBER="${1:-}"
@@ -70,7 +64,7 @@ REPO_FLAG=(--repo "$REPO_LABEL")
 # ── Output file ───────────────────────────────────────────────────────────────
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-OUTPUT_DIR="${PR_CONTEXT_DIR:-.pr_context}"
+OUTPUT_DIR="${PR_CONTEXT_DIR:-$HOME/dotfiles/agents/pr-reviews}"
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_FILE="$OUTPUT_DIR/pr_${PR_NUMBER}_${TIMESTAMP}.md"
 
@@ -251,5 +245,5 @@ if (( FILE_SIZE > 512000 )); then
   warn "Consider reviewing specific files: gh pr diff ${PR_NUMBER} -- <path>"
 fi
 echo ""
-echo "  To review in Claude Code, open the project and say:"
-echo "    \"Review PR #${PR_NUMBER}\" — Claude will read ${LATEST_FILE}"
+echo "  To review in Claude Code, run /review-pr from any project and say:"
+echo "    \"Review PR #${PR_NUMBER}\" — context is at ${LATEST_FILE}"

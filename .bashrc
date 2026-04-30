@@ -125,3 +125,4 @@ export PATH="$PATH:/home/eunoia/.local/bin"
 
 # opencode
 export PATH=/home/eunoia/.opencode/bin:$PATH
+
