@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# fetch-pr-for-review.sh — Pull down PR context for Claude Code review
+# fetch-pr-for-review.sh — Pull down PR context for AI agent review
 # Usage: fetch-pr-for-review.sh <PR_NUMBER> [OWNER/REPO]
 # If OWNER/REPO is omitted, defaults to the repo in the current directory.
 
@@ -44,8 +44,6 @@ if ! command -v jq &>/dev/null; then
   exit 1
 fi
 
-# ── Sanity checks ─────────────────────────────────────────────────────────────
-
 # ── Args ──────────────────────────────────────────────────────────────────────
 
 PR_NUMBER="${1:-}"
@@ -64,7 +62,7 @@ REPO_FLAG=(--repo "$REPO_LABEL")
 # ── Output file ───────────────────────────────────────────────────────────────
 
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-OUTPUT_DIR="${PR_CONTEXT_DIR:-$HOME/dotfiles/agents/pr-reviews}"
+OUTPUT_DIR="${PR_CONTEXT_DIR:-$HOME/.agents/pr-reviews}"
 mkdir -p "$OUTPUT_DIR"
 OUTPUT_FILE="$OUTPUT_DIR/pr_${PR_NUMBER}_${TIMESTAMP}.md"
 
@@ -245,5 +243,5 @@ if (( FILE_SIZE > 512000 )); then
   warn "Consider reviewing specific files: gh pr diff ${PR_NUMBER} -- <path>"
 fi
 echo ""
-echo "  To review in Claude Code, run /review-pr from any project and say:"
+echo "  To review, run your AI agent from any project and say:"
 echo "    \"Review PR #${PR_NUMBER}\" — context is at ${LATEST_FILE}"

@@ -1,16 +1,9 @@
----
-name: review-pr
-description: Review a GitHub pull request. Use when the user asks to "review PR", "review pull request", or provides a PR number to review.
-disable-model-invocation: true
-allowed-tools: Bash, Read, Write
----
-
 Review PR #$ARGUMENTS.
 
 ## Steps
 
 1. Run the fetch script to pull down PR context:
-   `bash ~/.claude/skills/review-pr/scripts/fetch-pr-for-review.sh $ARGUMENTS`
+   `bash ~/.agents/skills/review-pr/scripts/fetch-pr-for-review.sh $ARGUMENTS`
 
 2. Read the output file at `.pr_context/pr_$ARGUMENTS_latest.md` as your primary source of context.
 
