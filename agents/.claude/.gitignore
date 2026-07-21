@@ -1,6 +1,12 @@
+.last-cleanup
 history.jsonl
 stats-cache.json
 mcp-needs-auth-cache.json
+policy-limits.json
+daemon.log
+daemon/
+jobs/
+remote-settings.json
 cache/
 sessions/
 projects/

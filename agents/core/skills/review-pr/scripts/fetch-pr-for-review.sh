@@ -49,7 +49,16 @@ fi
 PR_NUMBER="${1:-}"
 
 if [[ -z "$PR_NUMBER" ]]; then
-  die "Usage: $0 <PR_NUMBER> [OWNER/REPO]"
+  die "Usage: $0 <PR_NUMBER|PR_URL> [OWNER/REPO]"
+fi
+
+# Accept either a bare PR number or a GitHub PR URL
+# (e.g. https://github.com/OWNER/REPO/pull/1234[/files]).
+PR_NUMBER="${PR_NUMBER##*/pull/}"   # strip everything up to and including /pull/
+PR_NUMBER="${PR_NUMBER%%[!0-9]*}"   # keep only the leading digits
+
+if [[ -z "$PR_NUMBER" ]]; then
+  die "Could not extract a PR number from input: '${1}'"
 fi
 
 if [[ -n "${2:-}" ]]; then

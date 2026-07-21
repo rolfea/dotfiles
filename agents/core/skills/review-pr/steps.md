@@ -5,11 +5,11 @@ Review PR #$ARGUMENTS.
 1. Run the fetch script to pull down PR context:
    `bash ~/.agents/skills/review-pr/scripts/fetch-pr-for-review.sh $ARGUMENTS`
 
-2. Read the output file at `.pr_context/pr_$ARGUMENTS_latest.md` as your primary source of context.
+2. Read the output file at `~/dotfiles/agents/pr-reviews/pr_<PR_NUMBER>_latest.md` as your primary source of context. (`<PR_NUMBER>` is the bare integer — if `$ARGUMENTS` is a full GitHub URL like `https://github.com/OWNER/REPO/pull/1234`, use just `1234`. The fetch script handles either form.)
 
 3. If the PR description references a ticket (Jira, Shortcut, etc.), attempt to fetch that ticket via MCP or CLI tool. This will be important when you consider how the ticket address "correctness" (mentioned below, under "## Reviewer Mindset"). If an MCP or CLI tool is not available, ask the user to provide the ticket summary manually.
 
-4. Write your complete review to `.pr_context/pr_$ARGUMENTS_review.md`.
+4. Write your complete review to `~/dotfiles/agents/pr-reviews/pr_<PR_NUMBER>_review.md`.
 
 ## Review Format
 

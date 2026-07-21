@@ -5,6 +5,8 @@ set updatetime=300
 " Prevents the text from shifting when diagnostics appear/resolve
 set signcolumn=yes
 
+set wrap
+
 " Vim Plug Required
 " ===
 " This will automatically install Vim Plug if it is missing

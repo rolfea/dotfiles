@@ -1,7 +1,8 @@
 {
+  "model": "opus[1m]",
   "enabledPlugins": {
-    "gopls-lsp@claude-plugins-official": true,
-    "lightpanda@lightpanda": true
+    "typescript-lsp@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "lightpanda": {
@@ -11,5 +12,7 @@
       }
     }
   },
-  "effortLevel": "xhigh"
+  "effortLevel": "high",
+  "theme": "dark-ansi",
+  "skipAutoPermissionPrompt": true
 }
