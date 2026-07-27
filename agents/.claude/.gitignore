@@ -1,24 +1,15 @@
-.last-cleanup
-history.jsonl
-stats-cache.json
-mcp-needs-auth-cache.json
-policy-limits.json
-daemon.log
-daemon/
-jobs/
-remote-settings.json
-cache/
-sessions/
-projects/
-file-history/
-backups/
-debug/
-paste-cache/
-session-env/
-shell-snapshots/
-statsig/
-telemetry/
-todos/
-tasks/
-plans/
-plugins/
+# Allowlist, not a denylist: Claude Code writes new runtime state files into
+# this directory over time (credentials, session transcripts, shell snapshots,
+# caches). A denylist silently fails open the first time a new one appears —
+# which is how .credentials.json ended up stageable. Ignore everything and
+# opt in the config we actually want to sync across machines.
+
+*
+
+!.gitignore
+!CLAUDE.md
+!settings.json
+
+# skills/ is authored content, so track the whole subtree.
+!skills/
+!skills/**
