@@ -1,8 +1,9 @@
 # sym link a dir to dotfiles from $HOME/.config/alacritty
 [general] 
-# These themes are avaiable from here: https://github.com/alacritty/alacritty-theme
+# Themes are vendored from https://github.com/alacritty/alacritty-theme —
+# copy the file in rather than adding a submodule, so a clone is self-sufficient.
 import = [
-  "~/.config/alacritty/themes/themes/everforest_dark.toml"
+  "~/.config/alacritty/themes/everforest_dark.toml"
 ]
 
 [window]
