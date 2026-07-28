@@ -3,7 +3,10 @@
 
 set -euo pipefail
 
-DOTFILES_AGENTS="$HOME/dotfiles/agents"
+# Locate the repo from this script rather than assuming ~/dotfiles, so a clone
+# anywhere works — and so the whole thing can be exercised against a scratch
+# $HOME without writing to the real one.
+DOTFILES_AGENTS=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 TARGET_AGENTS="$HOME/.agents"
 
 echo "=== Deploying Generic AI Agent Workspaces ==="
@@ -34,9 +37,13 @@ cat "$TARGET_AGENTS/skills/review-pr/steps.md" >> "$CLAUDE_SKILLS_DIR/SKILL.md"
 rm -rf "$CLAUDE_SKILLS_DIR/scripts"
 ln -sf "$TARGET_AGENTS/skills/review-pr/scripts" "$CLAUDE_SKILLS_DIR/scripts"
 
-# 4. Clean up old dotfiles-internal .claude skills (since we shifted to /core and /adapters)
-echo "Cleaning up local repository skill duplicates..."
-rm -rf "$DOTFILES_AGENTS/.claude/skills"
+# A fourth step used to recursively delete this repo's agents/.claude/skills,
+# left over from before the core/ + adapters/ split. It must not come back:
+# ~/.claude is a symlink to agents/.claude, so that directory and the
+# CLAUDE_SKILLS_DIR written just above are one and the same — the script
+# compiled the skill and then deleted it on the next line. Keeping the
+# generated output out of git is handled by agents/.claude/.gitignore, which
+# is what the cleanup was actually reaching for.
 
 echo "=== ✅ Setup completed successfully! ==="
 echo "  - Core workspace synced to: $TARGET_AGENTS"
