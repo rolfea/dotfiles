@@ -10,6 +10,8 @@
 !CLAUDE.md
 !settings.json
 
-# skills/ is authored content, so track the whole subtree.
-!skills/
-!skills/**
+# skills/ stays ignored: it is *generated*, not authored. ../setup.sh compiles
+# it from ../../core (model-agnostic steps + scripts) and ../../adapters/claude
+# (frontmatter), and its last step deletes this directory outright. Committing
+# the output put a stale SKILL.md and a symlink to an absolute $HOME path into
+# a public repo. Edit core/ and adapters/; re-run setup.sh to regenerate.
