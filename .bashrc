@@ -31,7 +31,8 @@ shopt -s checkwinsize
 
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
-shopt -s globstar
+# bash 4+ only — guarded because macOS ships bash 3.2, where this errors.
+shopt -s globstar 2>/dev/null
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -124,35 +125,70 @@ if ! shopt -oq posix; then
   fi
 fi
 
+# ── PATH and dev tooling ─────────────────────────────────────────────────────
+# Every entry goes through _path_prepend so `source ~/.bashrc` to reload is
+# safe. The installers that wrote this section originally each appended
+# blindly, which is why $HOME/.local/bin used to land in PATH three times.
+# Duplicated from .profile on purpose — a non-login shell never reads that file.
+_path_prepend() {
+    case ":$PATH:" in
+        *":$1:"*) ;;
+        *) [ -d "$1" ] && PATH="$1:$PATH" ;;
+    esac
+}
+
+# Collapse repeats inherited from /etc/profile.d and friends, keeping the first
+# occurrence so precedence is unchanged.
+_path_dedupe() {
+    local out= entry IFS=:
+    for entry in $PATH; do
+        case ":$out:" in
+            *":$entry:"*) ;;
+            *) out="${out:+$out:}$entry" ;;
+        esac
+    done
+    PATH=$out
+}
+
+_path_prepend "$HOME/.local/bin"
+_path_prepend "$HOME/.opencode/bin"
+
 export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init - bash)"
-
-# Created by `pipx` on 2025-08-19 03:01:01
-export PATH="$PATH:/home/eunoia/.local/bin"
-
-# opencode
-export PATH=/home/eunoia/.opencode/bin:$PATH
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-
-# Added by Antigravity CLI installer
-export PATH="/home/eunoia/.local/bin:$PATH"
-
-# pnpm
-export PNPM_HOME="/home/eunoia/.local/share/pnpm"
+_path_prepend "$PYENV_ROOT/bin"
+# `pyenv init` prepends the shim dir every time it runs, so gate on the shims
+# already being present rather than on the binary existing.
 case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
+    *":$PYENV_ROOT/shims:"*) ;;
+    *) command -v pyenv >/dev/null && eval "$(pyenv init - bash)" ;;
 esac
-# pnpm end
 
-export NVM_DIR="$HOME/.config/nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export BUN_INSTALL="$HOME/.bun"
+_path_prepend "$BUN_INSTALL/bin"
+
+# pnpm's home is platform-specific.
+if [ "$(uname -s)" = Darwin ]; then
+    export PNPM_HOME="$HOME/Library/pnpm"
+else
+    export PNPM_HOME="$HOME/.local/share/pnpm"
+fi
+_path_prepend "$PNPM_HOME"
+
+# ~/.nvm is nvm's own default and what the Mac uses; this box keeps it under
+# ~/.config/nvm. Prefer whichever is actually there.
+if [ -d "$HOME/.config/nvm" ]; then
+    export NVM_DIR="$HOME/.config/nvm"
+else
+    export NVM_DIR="$HOME/.nvm"
+fi
+# Loading nvm.sh twice re-adds the active version's bin dir, so skip if the
+# function is already defined.
+if ! declare -F nvm >/dev/null && [ -s "$NVM_DIR/nvm.sh" ]; then
+    \. "$NVM_DIR/nvm.sh"
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+fi
+
+_path_dedupe
+export PATH
 
 # ── git-aware prompt ─────────────────────────────────────────────────────────
 # __git_ps1 ships with git itself (git-sh-prompt). Debian's bash-completion
@@ -280,7 +316,23 @@ fi
 # (rg/ripgrep, nvim/neovim). Both vars are overridable so a one-off machine can
 # trim the list without editing this file, and so the behaviour is testable.
 : "${DOTFILES_TOOLS:=git:git tmux:tmux nvim:neovim fzf:fzf rg:ripgrep gh:gh jq:jq curl:curl}"
-: "${DOTFILES_TOOLS_STAMP:=${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/tools-check}"
+: "${DOTFILES_CHECK_STAMP:=${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/env-check}"
+
+# Apple freezes /bin/bash at 3.2 (2007) rather than ship GPLv3, so this fires
+# on any stock macOS shell — where globstar and printf '%()T' don't exist and
+# parts of this file quietly do nothing. Takes the major version as an argument
+# so the behaviour is testable without a bash 3 to hand.
+_dotfiles_check_bash() {
+    local major=${1:-${BASH_VERSINFO[0]:-0}}
+    local shown=${1:-${BASH_VERSION:-$major}}
+    [ "$major" -ge 4 ] 2>/dev/null && return
+    local prefix=/usr/local
+    [ -d /opt/homebrew ] && prefix=/opt/homebrew
+    printf '\033[33m!\033[0m bash \033[1m%s\033[0m — this config expects bash 5\n' "$shown"
+    printf '  \033[2m3.2 is what Apple ships; install a current one:\033[0m\n'
+    printf '    brew install bash && chsh -s %s/bin/bash\n' "$prefix"
+    printf '    \033[2m(add it to /etc/shells first)\033[0m\n'
+}
 
 _dotfiles_missing_pkgs() {
     local entry
@@ -301,6 +353,11 @@ _dotfiles_install_cmd() {
 # `tools` — full status on demand, ignoring the once-a-day rate limit.
 tools() {
     local entry bin pkg pkgs
+    if [ "${BASH_VERSINFO[0]:-0}" -ge 4 ]; then
+        printf '  \033[32m✓\033[0m %-6s %s\n' bash "$BASH_VERSION"
+    else
+        printf '  \033[31m✗\033[0m %-6s \033[2m%s — want 5.x\033[0m\n' bash "$BASH_VERSION"
+    fi
     for entry in $DOTFILES_TOOLS; do
         bin=${entry%%:*}; pkg=${entry#*:}
         if command -v "$bin" >/dev/null 2>&1; then
@@ -314,15 +371,18 @@ tools() {
     return 0
 }
 
-_dotfiles_tools_notice() {
-    local today pkgs stamp=$DOTFILES_TOOLS_STAMP
+# One once-a-day gate for every environment warning, so a new tmux pane is
+# silent even when something is wrong.
+_dotfiles_env_notice() {
+    local today pkgs stamp=$DOTFILES_CHECK_STAMP
     # Builtin date formatting avoids forking `date` on every shell start.
     printf -v today '%(%F)T' -1 2>/dev/null || today=$(date +%F)
     [ "$(cat "$stamp" 2>/dev/null)" = "$today" ] && return
     mkdir -p "${stamp%/*}" 2>/dev/null && printf '%s' "$today" >"$stamp" 2>/dev/null
+    _dotfiles_check_bash
     pkgs=$(_dotfiles_missing_pkgs)
     [ -z "$pkgs" ] && return
     printf '\033[33m!\033[0m missing: \033[1m%s\033[0m\n  %s   \033[2m(or run `tools`)\033[0m\n' \
         "${pkgs% }" "$(_dotfiles_install_cmd "$pkgs")"
 }
-_dotfiles_tools_notice
+_dotfiles_env_notice

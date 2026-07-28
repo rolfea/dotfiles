@@ -1,7 +1,31 @@
 Basic setup steps on a new system.
 
-1. Create sym links for config files.
-  a. For vim, we want `~/.vimrc` to link to ~/dotfiles/.vimrc, so `ln -s ~/dotfiles/.vimrc ~/.vimrc`
-2. Similarly, for tmux: `ln -s ~/dotfiles/.tmux.conf ~/.tmux.conf`
-3. For claude: `ln -s ~/dotfiles/agents/.claude ~/.claude`
+The shell config is bash on every machine — zsh and oh-my-zsh were retired.
+On macOS, install a current bash first: Apple ships 3.2 (2007, pre-GPLv3) and
+parts of .bashrc need 4+. A stale bash announces itself on shell startup.
 
+  brew install bash
+  sudo sh -c 'echo /opt/homebrew/bin/bash >> /etc/shells'
+  chsh -s /opt/homebrew/bin/bash
+
+1. Symlink the config files:
+
+  ln -s ~/dotfiles/.bashrc        ~/.bashrc
+  ln -s ~/dotfiles/.profile       ~/.profile
+  ln -s ~/dotfiles/.bash_profile  ~/.bash_profile
+  ln -s ~/dotfiles/.vimrc         ~/.vimrc
+  ln -s ~/dotfiles/.tmux.conf     ~/.tmux.conf
+  ln -s ~/dotfiles/nvim           ~/.config/nvim
+  ln -s ~/dotfiles/alacritty      ~/.config/alacritty
+  ln -s ~/dotfiles/agents/.claude ~/.claude
+
+  .bash_profile matters on macOS specifically: terminals there start login
+  shells, which read it and ignore .bashrc. It only sources .profile, which
+  builds PATH and then sources .bashrc.
+
+2. Install the expected tools. Open a shell and run `tools` — it lists what is
+   missing and prints the right install command for the platform. The same
+   summary appears automatically, once a day, whenever something is absent.
+
+3. Nothing else to fetch. Alacritty's colour theme is vendored in the repo, so
+   a clone is self-sufficient.
