@@ -10,14 +10,20 @@ esac
 
 # don't put duplicate lines or lines starting with space in the history.
 # See bash(1) for more options
-HISTCONTROL=ignoreboth
+HISTCONTROL=ignoreboth:erasedups
 
 # append to the history file, don't overwrite it
 shopt -s histappend
 
 # for setting history length see HISTSIZE and HISTFILESIZE in bash(1)
-HISTSIZE=1000
-HISTFILESIZE=2000
+HISTSIZE=100000
+HISTFILESIZE=200000
+HISTTIMEFORMAT='%F %T '
+
+# Flush each command to the history file as it's entered rather than at exit,
+# so a killed pane doesn't take its history with it and Ctrl-R in a sibling
+# pane can see it.
+PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
 
 # check the window size after each command and, if necessary,
 # update the values of LINES and COLUMNS.
@@ -25,7 +31,7 @@ shopt -s checkwinsize
 
 # If set, the pattern "**" used in a pathname expansion context will
 # match all files and zero or more directories and subdirectories.
-#shopt -s globstar
+shopt -s globstar
 
 # make less more friendly for non-text input files, see lesspipe(1)
 [ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
@@ -56,10 +62,12 @@ if [ -n "$force_color_prompt" ]; then
     fi
 fi
 
+# The $(__git_ps1) call is inside single quotes on purpose: it must run at
+# prompt-render time, not once at assignment. __git_ps1 is defined further down.
 if [ "$color_prompt" = yes ]; then
-    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\[\033[01;33m\]$(__git_ps1 " (%s)")\[\033[00m\]\$ '
 else
-    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+    PS1='${debian_chroot:+($debian_chroot)}\u@\h:\w$(__git_ps1 " (%s)")\$ '
 fi
 unset color_prompt force_color_prompt
 
@@ -145,3 +153,176 @@ esac
 export NVM_DIR="$HOME/.config/nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# ── git-aware prompt ─────────────────────────────────────────────────────────
+# __git_ps1 ships with git itself (git-sh-prompt). Debian's bash-completion
+# normally pulls it in, but load it explicitly so this file also works on a
+# fresh box or a Mac, then stub it so PS1 can never error where git is absent.
+if ! declare -F __git_ps1 >/dev/null; then
+    for _f in /usr/lib/git-core/git-sh-prompt \
+              /usr/share/git/completion/git-prompt.sh \
+              /opt/homebrew/etc/bash_completion.d/git-prompt.sh \
+              /usr/local/etc/bash_completion.d/git-prompt.sh; do
+        [ -r "$_f" ] && . "$_f" && break
+    done
+    unset _f
+fi
+declare -F __git_ps1 >/dev/null || __git_ps1() { :; }
+
+GIT_PS1_SHOWDIRTYSTATE=1       # * unstaged, + staged
+GIT_PS1_SHOWSTASHSTATE=1       # $ something stashed
+GIT_PS1_SHOWUNTRACKEDFILES=1   # % untracked files present
+GIT_PS1_SHOWUPSTREAM=auto      # < behind, > ahead, <> diverged
+# Per-repo escape hatch if the prompt ever drags in a huge worktree:
+#   git config bash.showUntrackedFiles false
+
+# ── git aliases ──────────────────────────────────────────────────────────────
+# Names deliberately match the oh-my-zsh git plugin so muscle memory carries
+# over from the Mac.
+git_main_branch() {
+    local ref
+    # origin/HEAD is authoritative and handles repos whose trunk isn't "main"
+    # (this monorepo's is "dev").
+    ref=$(git symbolic-ref --quiet --short refs/remotes/origin/HEAD 2>/dev/null) \
+        && { echo "${ref#origin/}"; return; }
+    for ref in main trunk master dev; do
+        git show-ref -q --verify "refs/heads/$ref" && { echo "$ref"; return; }
+    done
+    echo main
+}
+
+alias g='git'
+alias gst='git status'
+alias gss='git status -s'
+alias ga='git add'
+alias gaa='git add --all'
+alias gc='git commit -v'
+alias gc!='git commit -v --amend'
+alias gcm='git checkout "$(git_main_branch)"'
+alias gco='git checkout'
+alias gcb='git checkout -b'
+alias gsw='git switch'
+alias gswc='git switch -c'
+alias gb='git branch'
+alias gba='git branch -a'
+alias gbd='git branch -d'
+alias gd='git diff'
+alias gdca='git diff --cached'
+alias gf='git fetch'
+alias gl='git pull'
+alias gp='git push'
+alias gm='git merge'
+alias gcp='git cherry-pick'
+alias glog='git log --oneline --decorate --graph'
+alias gloga='git log --oneline --decorate --graph --all'
+alias grb='git rebase'
+alias grbi='git rebase -i'
+alias grbc='git rebase --continue'
+alias grba='git rebase --abort'
+alias grh='git reset'
+alias grhh='git reset --hard'
+alias gsta='git stash push'
+alias gstp='git stash pop'
+alias gstl='git stash list'
+
+# Make tab-completion follow the aliases, not just the `git` binary.
+if ! declare -F __git_complete >/dev/null \
+   && [ -r /usr/share/bash-completion/completions/git ]; then
+    . /usr/share/bash-completion/completions/git
+fi
+if declare -F __git_complete >/dev/null; then
+    __git_complete g    __git_main
+    __git_complete gco  _git_checkout
+    __git_complete gcb  _git_checkout
+    __git_complete gsw  _git_switch
+    __git_complete gb   _git_branch
+    __git_complete gd   _git_diff
+    __git_complete gp   _git_push
+    __git_complete gl   _git_pull
+    __git_complete grb  _git_rebase
+fi
+
+alias chad='claude'
+
+# ── fzf ──────────────────────────────────────────────────────────────────────
+# Ctrl-R fuzzy history, Ctrl-T insert file path, Alt-C fuzzy cd.
+if command -v fzf >/dev/null; then
+    # rg honours .gitignore, which is what makes this usable in a monorepo.
+    if command -v rg >/dev/null; then
+        export FZF_DEFAULT_COMMAND='rg --files --hidden --glob "!.git/*"'
+        export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    fi
+    export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --info=inline'
+    if fzf --bash >/dev/null 2>&1; then
+        eval "$(fzf --bash)"   # fzf >= 0.48
+    else
+        # Debian/Ubuntu split these: key-bindings under doc/examples, but the
+        # completion script (the `**<TAB>` trigger) under bash-completion/,
+        # where the lazy loader would only pull it in for `fzf` itself — too
+        # late to trigger on other commands. Source both, upstream paths last.
+        for _f in /usr/share/doc/fzf/examples/key-bindings.bash \
+                  /usr/share/bash-completion/completions/fzf \
+                  /usr/share/doc/fzf/examples/completion.bash; do
+            [ -r "$_f" ] && . "$_f"
+        done
+        unset _f
+    fi
+fi
+
+# ── missing-tool notice ──────────────────────────────────────────────────────
+# Cloning these dotfiles onto a new box gets you the config but none of the
+# binaries it assumes. Flag what's absent, once a day, with an install command
+# that actually works. Only tools installable in one command belong here —
+# anything needing a third-party apt repo (doppler) or a version manager
+# (node, pnpm) would print advice that fails, so it's deliberately left out.
+#
+# Format is binary:package because they diverge often enough to matter
+# (rg/ripgrep, nvim/neovim). Both vars are overridable so a one-off machine can
+# trim the list without editing this file, and so the behaviour is testable.
+: "${DOTFILES_TOOLS:=git:git tmux:tmux nvim:neovim fzf:fzf rg:ripgrep gh:gh jq:jq curl:curl}"
+: "${DOTFILES_TOOLS_STAMP:=${XDG_CACHE_HOME:-$HOME/.cache}/dotfiles/tools-check}"
+
+_dotfiles_missing_pkgs() {
+    local entry
+    for entry in $DOTFILES_TOOLS; do
+        command -v "${entry%%:*}" >/dev/null 2>&1 || printf '%s ' "${entry#*:}"
+    done
+}
+
+_dotfiles_install_cmd() {
+    [ -z "$1" ] && return
+    if command -v brew >/dev/null 2>&1; then
+        printf 'brew install %s' "${1% }"
+    else
+        printf 'sudo apt install %s' "${1% }"
+    fi
+}
+
+# `tools` — full status on demand, ignoring the once-a-day rate limit.
+tools() {
+    local entry bin pkg pkgs
+    for entry in $DOTFILES_TOOLS; do
+        bin=${entry%%:*}; pkg=${entry#*:}
+        if command -v "$bin" >/dev/null 2>&1; then
+            printf '  \033[32m✓\033[0m %-6s %s\n' "$bin" "$(command -v "$bin")"
+        else
+            printf '  \033[31m✗\033[0m %-6s \033[2mmissing → %s\033[0m\n' "$bin" "$pkg"
+        fi
+    done
+    pkgs=$(_dotfiles_missing_pkgs)
+    [ -n "$pkgs" ] && printf '\n  %s\n' "$(_dotfiles_install_cmd "$pkgs")"
+    return 0
+}
+
+_dotfiles_tools_notice() {
+    local today pkgs stamp=$DOTFILES_TOOLS_STAMP
+    # Builtin date formatting avoids forking `date` on every shell start.
+    printf -v today '%(%F)T' -1 2>/dev/null || today=$(date +%F)
+    [ "$(cat "$stamp" 2>/dev/null)" = "$today" ] && return
+    mkdir -p "${stamp%/*}" 2>/dev/null && printf '%s' "$today" >"$stamp" 2>/dev/null
+    pkgs=$(_dotfiles_missing_pkgs)
+    [ -z "$pkgs" ] && return
+    printf '\033[33m!\033[0m missing: \033[1m%s\033[0m\n  %s   \033[2m(or run `tools`)\033[0m\n' \
+        "${pkgs% }" "$(_dotfiles_install_cmd "$pkgs")"
+}
+_dotfiles_tools_notice
