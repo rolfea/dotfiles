@@ -1,18 +1,15 @@
 {
-  "model": "opus[1m]",
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(ripgrep:*)",
+      "Bash(ag:*)"
+    ]
+  },
   "enabledPlugins": {
-    "typescript-lsp@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true
   },
-  "extraKnownMarketplaces": {
-    "lightpanda": {
-      "source": {
-        "source": "github",
-        "repo": "lightpanda-io/agent-skill"
-      }
-    }
-  },
-  "effortLevel": "high",
   "theme": "dark-ansi",
-  "skipAutoPermissionPrompt": true
+  "model": "opus[1m]"
 }
