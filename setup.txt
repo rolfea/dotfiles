@@ -1,31 +1,36 @@
-Basic setup steps on a new system.
+Setting these dotfiles up on a new machine.
 
-The shell config is bash on every machine — zsh and oh-my-zsh were retired.
-On macOS, install a current bash first: Apple ships 3.2 (2007, pre-GPLv3) and
-parts of .bashrc need 4+. A stale bash announces itself on shell startup.
+  git clone https://github.com/rolfea/dotfiles.git ~/dotfiles
+  cd ~/dotfiles
+  ./install.sh --dry-run    # see what it would do
+  ./install.sh              # create the symlinks
+
+install.sh is the source of truth for what gets linked where — this file used
+to list the symlinks by hand and drifted out of date, so it no longer tries.
+The script is POSIX sh with no bash-4 constructs, so it runs on macOS before
+you've replaced Apple's bash. It is safe to re-run: correct links are left
+alone, and any real file in the way is moved to ~/.dotfiles-backup/<timestamp>
+rather than deleted.
+
+It deliberately installs nothing. It reports which tools are missing and
+prints the right command for the platform; you run it.
+
+macOS, one extra step
+---------------------
+Apple ships bash 3.2 (2007 — they won't ship GPLv3) and parts of .bashrc need
+4+. install.sh flags this, and so does every new shell. Fix:
 
   brew install bash
   sudo sh -c 'echo /opt/homebrew/bin/bash >> /etc/shells'
   chsh -s /opt/homebrew/bin/bash
 
-1. Symlink the config files:
+The shell config is bash everywhere; zsh and oh-my-zsh were retired. On macOS
+terminals start login shells, which read .bash_profile and ignore .bashrc —
+that's what .bash_profile is for. It sources .profile, which builds PATH and
+then sources .bashrc.
 
-  ln -s ~/dotfiles/.bashrc        ~/.bashrc
-  ln -s ~/dotfiles/.profile       ~/.profile
-  ln -s ~/dotfiles/.bash_profile  ~/.bash_profile
-  ln -s ~/dotfiles/.vimrc         ~/.vimrc
-  ln -s ~/dotfiles/.tmux.conf     ~/.tmux.conf
-  ln -s ~/dotfiles/nvim           ~/.config/nvim
-  ln -s ~/dotfiles/alacritty      ~/.config/alacritty
-  ln -s ~/dotfiles/agents/.claude ~/.claude
+Day to day
+----------
+  tools        what's installed, what's missing, how to install it
 
-  .bash_profile matters on macOS specifically: terminals there start login
-  shells, which read it and ignore .bashrc. It only sources .profile, which
-  builds PATH and then sources .bashrc.
-
-2. Install the expected tools. Open a shell and run `tools` — it lists what is
-   missing and prints the right install command for the platform. The same
-   summary appears automatically, once a day, whenever something is absent.
-
-3. Nothing else to fetch. Alacritty's colour theme is vendored in the repo, so
-   a clone is self-sufficient.
+A new shell prints the same summary once a day whenever something is absent.
