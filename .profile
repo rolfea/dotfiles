@@ -21,6 +21,11 @@ _path_prepend() {
     esac
 }
 
+# Homebrew: sets PATH/MANPATH/etc. Previously this only happened in ~/.zprofile,
+# so a bash login shell never saw it. Runs before the _path_prepend calls below
+# so pyenv shims still land ahead of /opt/homebrew/bin.
+[ -x /opt/homebrew/bin/brew ] && eval "$(/opt/homebrew/bin/brew shellenv)"
+
 _path_prepend "$HOME/bin"
 _path_prepend "$HOME/.local/bin"
 
