@@ -198,7 +198,9 @@ if ! declare -F __git_ps1 >/dev/null; then
     for _f in /usr/lib/git-core/git-sh-prompt \
               /usr/share/git/completion/git-prompt.sh \
               /opt/homebrew/etc/bash_completion.d/git-prompt.sh \
-              /usr/local/etc/bash_completion.d/git-prompt.sh; do
+              /usr/local/etc/bash_completion.d/git-prompt.sh \
+              /Library/Developer/CommandLineTools/usr/share/git-core/git-prompt.sh \
+              /Applications/Xcode.app/Contents/Developer/usr/share/git-core/git-prompt.sh; do
         [ -r "$_f" ] && . "$_f" && break
     done
     unset _f
