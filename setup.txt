@@ -12,8 +12,11 @@ you've replaced Apple's bash. It is safe to re-run: correct links are left
 alone, and any real file in the way is moved to ~/.dotfiles-backup/<timestamp>
 rather than deleted.
 
-It deliberately installs nothing. It reports which tools are missing and
-prints the right command for the platform; you run it.
+By default it installs nothing: it reports which tools are missing and prints
+the right command for the platform (Homebrew, pacman, or apt); you run it.
+Pass --install to have it run that command for you in one shot:
+
+  ./install.sh --install    link, then install everything that's missing
 
 macOS, one extra step
 ---------------------

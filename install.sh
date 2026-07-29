@@ -6,11 +6,12 @@
 # Deliberately POSIX sh with no bash-4 constructs, because on macOS this runs
 # *before* you've replaced Apple's bash 3.2.
 #
-# It never installs anything. Package installs need sudo and network, and
-# that's a decision for whoever is at the keyboard — so this prints the command
-# and stops.
+# By default it installs nothing: package installs need sudo and network, so it
+# just prints the command and stops. Pass --install to opt in and have it run
+# the install for you via whichever package manager it detects.
 #
-#   ./install.sh            link everything, then report
+#   ./install.sh            link everything, then report what's missing
+#   ./install.sh --install  link, then install the missing tools for you
 #   ./install.sh --dry-run  show what would happen, touch nothing
 #
 # Safe to re-run: existing correct links are left alone, and any real file in
@@ -20,8 +21,14 @@ set -eu
 
 DOTFILES=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 DRY_RUN=0
-[ "${1:-}" = "--dry-run" ] && DRY_RUN=1
-[ "${1:-}" = "-n" ] && DRY_RUN=1
+DO_INSTALL=0
+for arg in "$@"; do
+    case $arg in
+        --dry-run|-n) DRY_RUN=1 ;;
+        --install|-i) DO_INSTALL=1 ;;
+        *) printf 'unknown option: %s\n' "$arg" >&2; exit 2 ;;
+    esac
+done
 
 BACKUP_DIR=$HOME/.dotfiles-backup/$(date +%Y%m%d-%H%M%S)
 made_backup=0
@@ -115,32 +122,90 @@ link_one() {
 
 # ── tools ────────────────────────────────────────────────────────────────────
 # Mirrors the list in .bashrc. Kept as binary:package because the two names
-# diverge often enough to matter (rg/ripgrep, nvim/neovim).
-TOOLS='git:git tmux:tmux nvim:neovim fzf:fzf rg:ripgrep gh:gh jq:jq curl:curl'
+# diverge often enough to matter (rg/ripgrep, nvim/neovim). The package name
+# here is the Homebrew/apt one; pkg_name() remaps the few that differ elsewhere
+# (gh→github-cli on Arch, and npm ships inside Homebrew's node formula).
+TOOLS='git:git tmux:tmux nvim:neovim node:nodejs npm:npm fzf:fzf rg:ripgrep gh:gh jq:jq curl:curl'
+
+# Which package manager we suggest, and use with --install. brew wins on macOS
+# even when another manager is present; then the common Linux distro managers.
+detect_pkg_mgr() {
+    if   command -v brew   >/dev/null 2>&1; then echo brew
+    elif command -v pacman >/dev/null 2>&1; then echo pacman
+    elif command -v apt    >/dev/null 2>&1; then echo apt
+    else echo ''
+    fi
+}
+
+# Map a TOOLS package name to the given manager's name. Most agree; only the
+# exceptions live here. An empty result means "no separate package on this
+# manager" — e.g. npm is bundled with Homebrew's node formula.
+pkg_name() {
+    case "$2:$1" in
+        pacman:gh)   echo github-cli ;;
+        brew:nodejs) echo node ;;
+        brew:npm)    echo '' ;;
+        *)           echo "$1" ;;
+    esac
+}
+
+# The human-facing install command, for when we're only reporting. $2 is a
+# leading-space-separated package list.
+install_cmd() {
+    case $1 in
+        brew)   printf 'brew install%s' "$2" ;;
+        pacman) printf 'sudo pacman -S --needed%s' "$2" ;;
+        apt)    printf 'sudo apt install%s' "$2" ;;
+        *)      printf '(via your package manager):%s' "$2" ;;
+    esac
+}
+
+# Actually install the missing packages. Word-splitting $2 is intentional.
+run_install() {
+    case $1 in
+        brew)   brew install $2 ;;
+        pacman) sudo pacman -S --needed $2 ;;
+        apt)    sudo apt update && sudo apt install $2 ;;
+    esac
+}
 
 report_tools() {
+    mgr=$(detect_pkg_mgr)
     missing=''
     for entry in $TOOLS; do
         bin=${entry%%:*}
-        pkg=${entry#*:}
+        name=$(pkg_name "${entry#*:}" "$mgr")
         if command -v "$bin" >/dev/null 2>&1; then
             step "$GRN" "✓" "${DIM}$bin$R"
+        elif [ -z "$name" ]; then
+            step "$YEL" "✗" "$bin ${DIM}→ bundled$R"
         else
-            step "$RED" "✗" "$bin ${DIM}→ $pkg$R"
-            missing="$missing $pkg"
+            step "$RED" "✗" "$bin ${DIM}→ $name$R"
+            missing="$missing $name"
         fi
     done
 
     [ -z "$missing" ] && return 0
 
+    if [ "$DO_INSTALL" -eq 1 ] && [ "$DRY_RUN" -eq 0 ]; then
+        if [ -z "$mgr" ]; then
+            say ''
+            say "  ${RED}!${R} no known package manager — install manually:$missing"
+            return 0
+        fi
+        say ''
+        say "  ${B}installing${R}${DIM} via $mgr${R}:$missing"
+        run_install "$mgr" "$missing"
+        return 0
+    fi
+
     say ''
     say "  ${B}Install these yourself:${R}"
-    if command -v brew >/dev/null 2>&1; then
-        say "    brew install${missing}"
-    elif command -v apt >/dev/null 2>&1; then
-        say "    sudo apt install${missing}"
-    else
-        say "    (via your package manager):${missing}"
+    say "    $(install_cmd "$mgr" "$missing")"
+    if [ "$DRY_RUN" -eq 1 ] && [ "$DO_INSTALL" -eq 1 ]; then
+        say "    ${DIM}(--dry-run: not run)$R"
+    elif [ "$DO_INSTALL" -eq 0 ]; then
+        say "    ${DIM}or re-run with --install to do it now$R"
     fi
 }
 
