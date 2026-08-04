@@ -1,4 +1,4 @@
-# .claude/.gitignore
+# .pi/agent/.gitignore
 # We use an allowlist strategy (ignore everything, then explicitly opt-in)
 # to avoid syncing volatile runtime files (sessions, caches, tokens)
 # back into the dotfiles repository.
@@ -6,6 +6,6 @@
 *
 
 !.gitignore
-!CLAUDE.md
+!AGENTS.md
 !settings.json
 !skills/

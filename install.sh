@@ -57,6 +57,7 @@ LINKS='
 nvim:.config/nvim
 alacritty:.config/alacritty
 agents/.claude:.claude
+agents/.pi/agent:.pi/agent
 '
 
 # `ln -s dir/ target` stores the trailing slash, so a link that is already
